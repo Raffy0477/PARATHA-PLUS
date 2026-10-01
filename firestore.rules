@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'prof.raffy.phd@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Entity Validators
+    function isValidReview(data) {
+      return data.keys().hasAll(['userId', 'userName', 'rating', 'comment', 'createdAt']) &&
+        data.keys().hasOnly(['userId', 'userName', 'userPhoto', 'rating', 'comment', 'favoriteDish', 'createdAt']) &&
+        data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+        data.userName is string && data.userName.size() > 0 && data.userName.size() <= 100 &&
+        data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+        data.comment is string && data.comment.size() >= 3 && data.comment.size() <= 1000 &&
+        (!('favoriteDish' in data) || (data.favoriteDish is string && data.favoriteDish.size() <= 100)) &&
+        (!('userPhoto' in data) || (data.userPhoto is string && data.userPhoto.size() <= 500)) &&
+        data.createdAt == request.time;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['userId', 'customerName', 'customerPhone', 'orderType', 'items', 'totalAmount', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['userId', 'customerName', 'customerPhone', 'orderType', 'deliveryAddress', 'items', 'totalAmount', 'status', 'notes', 'createdAt']) &&
+        data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+        data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 100 &&
+        data.customerPhone is string && data.customerPhone.size() >= 5 && data.customerPhone.size() <= 30 &&
+        data.orderType in ['delivery', 'takeaway', 'dine-in'] &&
+        data.items is string && data.items.size() > 0 && data.items.size() <= 2000 &&
+        data.totalAmount is number && data.totalAmount >= 0 &&
+        data.status in ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'] &&
+        (!('deliveryAddress' in data) || (data.deliveryAddress is string && data.deliveryAddress.size() <= 300)) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+        data.createdAt == request.time;
+    }
+
+    function isValidFavorite(data) {
+      return data.keys().hasAll(['userId', 'menuItemId', 'menuItemName', 'price', 'addedAt']) &&
+        data.keys().hasOnly(['userId', 'menuItemId', 'menuItemName', 'price', 'category', 'addedAt']) &&
+        data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+        data.menuItemId is string && data.menuItemId.size() > 0 && data.menuItemId.size() <= 64 &&
+        data.menuItemName is string && data.menuItemName.size() > 0 && data.menuItemName.size() <= 100 &&
+        data.price is number && data.price >= 0 &&
+        (!('category' in data) || (data.category is string && data.category.size() <= 60)) &&
+        data.addedAt == request.time;
+    }
+
+    // Health check collection for connection test
+    match /test/{docId} {
+      allow get: if true;
+    }
+
+    // Reviews Collection: Public read, authenticated creation
+    match /reviews/{reviewId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && isValidId(reviewId) && isValidReview(incoming());
+      allow update: if isSignedIn() && isValidId(reviewId) && (
+        (incoming().userId == request.auth.uid && existing().userId == request.auth.uid &&
+         incoming().userId == existing().userId && incoming().createdAt == existing().createdAt &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'comment', 'favoriteDish', 'userPhoto', 'userName'])) ||
+        isAdmin()
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // Orders Collection: Restricted to owner and admin
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming());
+      allow update: if isSignedIn() && isValidId(orderId) && (
+        (existing().userId == request.auth.uid && incoming().userId == existing().userId &&
+         incoming().createdAt == existing().createdAt &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['customerPhone', 'deliveryAddress', 'notes'])) ||
+        (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['status']))
+      );
+      allow delete: if isAdmin();
+    }
+
+    // User Bookmarked Favorites: Subcollection
+    match /users/{userId}/favorites/{favId} {
+      allow get, list: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidId(favId) && isValidFavorite(incoming());
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Admin reference
+    match /admins/{adminId} {
+      allow get: if isSignedIn();
+      allow list, write: if false;
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "entities": {
+    "Review": {
+      "title": "Customer Review",
+      "description": "A customer review and rating for Paratha Plus dishes and service",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of the reviewer",
+          "maxLength": 128
+        },
+        "userName": {
+          "type": "string",
+          "description": "Display name of reviewer",
+          "maxLength": 100
+        },
+        "userPhoto": {
+          "type": "string",
+          "description": "Avatar photo URL of reviewer",
+          "maxLength": 500
+        },
+        "rating": {
+          "type": "number",
+          "description": "Rating score from 1 to 5"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Review text feedback",
+          "maxLength": 1000
+        },
+        "favoriteDish": {
+          "type": "string",
+          "description": "Favorite paratha or deal chosen by reviewer",
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when review was submitted"
+        }
+      },
+      "required": ["userId", "userName", "rating", "comment", "createdAt"]
+    },
+    "Order": {
+      "title": "Customer Order",
+      "description": "Food order placed by a customer for delivery or pickup at Paratha Plus",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of customer",
+          "maxLength": 128
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Customer contact name",
+          "maxLength": 100
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Contact phone number for order verification",
+          "maxLength": 30
+        },
+        "orderType": {
+          "type": "string",
+          "description": "Order fulfillment type",
+          "enum": ["delivery", "takeaway", "dine-in"]
+        },
+        "deliveryAddress": {
+          "type": "string",
+          "description": "Delivery address or table number",
+          "maxLength": 300
+        },
+        "items": {
+          "type": "string",
+          "description": "JSON stringified summary of items ordered",
+          "maxLength": 2000
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount in PKR"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the order",
+          "enum": ["pending", "confirmed", "preparing", "ready", "delivered", "cancelled"]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Special cooking instructions or requests",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when order was placed"
+        }
+      },
+      "required": ["userId", "customerName", "customerPhone", "orderType", "items", "totalAmount", "status", "createdAt"]
+    },
+    "Favorite": {
+      "title": "Favorite Dish",
+      "description": "A bookmarked or favorite menu item for a customer",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID of the user",
+          "maxLength": 128
+        },
+        "menuItemId": {
+          "type": "string",
+          "description": "Menu item identifier",
+          "maxLength": 64
+        },
+        "menuItemName": {
+          "type": "string",
+          "description": "Dish title",
+          "maxLength": 100
+        },
+        "price": {
+          "type": "number",
+          "description": "Price in PKR"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of dish",
+          "maxLength": 60
+        },
+        "addedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when dish was added to favorites"
+        }
+      },
+      "required": ["userId", "menuItemId", "menuItemName", "price", "addedAt"]
+    }
+  },
+  "firestore": {
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Collection of customer testimonials and ratings"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer food orders placed online"
+    },
+    "/users/{userId}/favorites/{favId}": {
+      "schema": { "$ref": "#/entities/Favorite" },
+      "description": "User specific bookmarked menu items"
+    }
+  }
+}

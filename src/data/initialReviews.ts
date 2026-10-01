@@ -1,0 +1,48 @@
+import { CustomerReview } from '../types';
+
+export const INITIAL_REVIEWS: CustomerReview[] = [
+  {
+    id: 'rev-ryk-1',
+    userId: 'seed-user-1',
+    userName: 'Dr. Hamza Tariq',
+    userPhoto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+    rating: 5,
+    comment: 'Hands down the best parathas in Rahim Yar Khan! After a long night shift at Sheikh Zayed Hospital, our go-to spot is Paratha Plus on Faisal Road. The Chicken Cheese Tikka Paratha with their steaming hot Karak Matka Chai is unmatched.',
+    favoriteDish: 'Special Chicken Cheese Tikka Paratha',
+    createdAt: '2026-09-24T18:30:00.000Z',
+    verifiedVisit: true,
+  },
+  {
+    id: 'rev-ryk-2',
+    userId: 'seed-user-2',
+    userName: 'Ayesha Malik',
+    userPhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+    rating: 5,
+    comment: 'Clean, family-friendly environment and exceptional taste. We ordered the Grand Sunday Nashta deal for 6 people and every single item was fresh, piping hot, and made with pure ghee. The staff is polite and WhatsApp delivery is super fast.',
+    favoriteDish: 'Grand Sunday Family Nashta',
+    createdAt: '2026-09-27T09:15:00.000Z',
+    verifiedVisit: true,
+  },
+  {
+    id: 'rev-ryk-3',
+    userId: 'seed-user-3',
+    userName: 'Bilal Farooq (KFUEIT Student)',
+    userPhoto: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
+    rating: 5,
+    comment: 'The Nutella & Pistachio paratha is pure heaven! Truly lives up to "Taste That Brings You Back." Best late-night spot for students hanging out after midnight. Crispy layers that never feel overly greasy.',
+    favoriteDish: 'Warm Nutella & Pistachio Paratha',
+    createdAt: '2026-09-28T22:45:00.000Z',
+    verifiedVisit: true,
+  },
+  {
+    id: 'rev-ryk-4',
+    userId: 'seed-user-4',
+    userName: 'Chaudhry Salman',
+    userPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+    rating: 5,
+    comment: 'The Mughlai Dum Keema paratha reminds me of old Lahore flavors right here on Faisal Road RYK. Crispy edges, juicy flavorful minced beef, and the mint raita is top notch. Highly recommended!',
+    favoriteDish: 'Mughlai Dum Keema Paratha',
+    createdAt: '2026-09-29T20:10:00.000Z',
+    verifiedVisit: true,
+  },
+];

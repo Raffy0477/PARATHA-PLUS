@@ -1,0 +1,6 @@
+{
+  "name": "Paratha Plus | Taste That Brings You Back",
+  "description": "Modern portfolio & ordering website for Paratha Plus in Rahim Yar Khan. Featuring hot flaky signature parathas, authentic Pakistani chai & kababs, special deals, customer reviews and online WhatsApp ordering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
